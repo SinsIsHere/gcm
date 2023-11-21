@@ -1,26 +1,25 @@
-module gcm_counter (
-    input logic clk,
-    input logic rst_n,
-    input logic ctr_rst_i,
-    input logic ctr_vld_a_i,
-    input logic ctr_vld_c_i,
-    output logic [127:0] ctr_len_o
+module gcm_mult(
+    input logic          clk,
+    input logic         rst_n,
+	input logic [127:0] x,
+	input logic [127:0] y,
+	output logic [127:0] z
 );
-    logic [63:0] ctr_len_a;
-    logic [63:0] ctr_len_c;
-    assign ctr_len_o = {ctr_len_a, ctr_len_c};
+	logic [0:128][127:0] m;
+	logic [0:128][127:0] p;
 
-    always_ff @(posedge clk, negedge rst_n) begin
-        if (!rst_n) ctr_len_a <= '0;
-        else if (ctr_rst_i) ctr_len_a <= '0;
-        else if (ctr_vld_a_i) ctr_len_a <= ctr_len_a + 64'd128;
-        else ctr_len_a <= ctr_len_a;
-    end
+	assign m[0] = x;
+	assign p[0] = '0;
 
-    always_ff @(posedge clk, negedge rst_n) begin
-        if (!rst_n) ctr_len_c <= '0;
-        else if (ctr_rst_i) ctr_len_c <= '0;
-        else if (ctr_vld_c_i) ctr_len_c <= ctr_len_c + 64'd128;
-        else ctr_len_c <= ctr_len_c;
-    end
+	generate
+		for (genvar i = 1; i < 129; i++) begin
+			assign p[i] = (y[i-1]) ? (p[i-1] ^ m[i-1]) : p[i-1];
+			assign m[i] = (m[i-1][127]) ? ({m[i-1][126:0], 1'b0} ^ {120'd0, 8'b1000_0111}) : {m[i-1][126:0], 1'b0};
+		end
+	endgenerate
+
+	always_ff @(posedge clk, negedge rst_n) begin
+		if (!rst_n) z <= '0;
+		else 		z <= p[128];
+	end
 endmodule
