@@ -1,7 +1,8 @@
 module gcm (
     input  logic         clk,
     input  logic         rst_n,
-    input  logic         gcm_end_i,
+    input  logic         gcm_en_i,
+    input  logic         gcm_decrypt_i,
 
     input  logic         gcm_key_vld_i,
     input  logic [127:0] gcm_key_i,
@@ -9,13 +10,19 @@ module gcm (
     input  logic         gcm_iv_vld_i,
     input  logic         gcm_aad_vld_i,
     input  logic         gcm_data_vld_i,
+    input  logic         gcm_tag_vld_i,
+    input  logic         gcm_end_i,
 
     input  logic [127:0] gcm_data_i,
 
+    output logic         gcm_ready_o,
+
     output logic         gcm_data_vld_o,
     output logic         gcm_tag_vld_o,
+    output logic         gcm_ok_vld_o,
 
-    output logic [127:0] gcm_data_o
+    output logic [127:0] gcm_data_o,
+    output logic         gcm_ok_o,
 );
 //CONNECTIONS-----------------------------------------------------------------//
     logic       [127:0] jn;
@@ -274,14 +281,14 @@ module gcm (
     always_ff @(posedge clk, negedge rst_n) begin
         if (!rst_n) has_fin_pipe <= '0;
         else if (j0_en) has_fin_pipe <= 1'b1;
-        else if (gcm_iv_vld_i) has_fin_pipe <= 1'b0;
+        else if (gcm_iv_vld_i | real_end) has_fin_pipe <= 1'b0;
         else has_fin_pipe <= has_fin_pipe;
     end
 
     always_ff @(posedge clk, negedge rst_n) begin
         if (!rst_n) has_end <= '0;
         else if (gcm_end_i) has_end <= 1'b1;
-        else if (gcm_iv_vld_i) has_end <= 1'b0;
+        else if (gcm_iv_vld_i | real_end) has_end <= 1'b0;
         else has_end <= has_end;
     end
 
@@ -333,6 +340,24 @@ module gcm (
     always_ff @(posedge clk, negedge rst_n) begin
         if (!rst_n) gcm_data_o <= '0;
         else gcm_data_o <= dout_in;
+    end
+//----------------------------------------------------------------------------//
+
+
+
+
+
+//COMPARATOR------------------------------------------------------------------//
+    logic [127:0] tag_in;
+    logic         ok_out;
+    assign ok_out = (tag_in == (mult_out ^  j0_reg)) ? 1'b1 : 1'b0;
+    always_ff @(posedge clk, negedge rst_n) begin
+        if (!rst_n) gcm_ok_vld_o <= '0;
+        else        gcm_ok_vld_o <= tag_sel & gcm_decrypt_i;
+    end
+    always_ff @(posedge clk, negedge rst_n) begin
+        if (!rst_n) gcm_ok_o <= '0;
+        else        gcm_ok_o <= ok_out & gcm_decrypt_i;
     end
 //----------------------------------------------------------------------------//
 endmodule
