@@ -51,10 +51,10 @@ module gcm_tb;
         //.gcm_ok_o(gcm_ok_o)
     );
     
-    always #10 clk <= ~clk;
+    always #10 clk = ~clk;
 
     initial begin
-        #000000 clk             <= 1;
+        #000000 clk              = 1;
                 rst_n           <= 0;
                 gcm_end_i       <= 0;
                 gcm_key_i       <= '0;
@@ -83,27 +83,27 @@ module gcm_tb;
 
 
 
-        #000500 gcm_key_i       <= 128'hfe47fcce5fc32665d2ae399e4eec72ba;
+        #000500 gcm_key_i       <= 128'h1332_2005_e134_02ca_4675_d599_81e5_51b0;
                 gcm_key_vld_i	<= 1;
 		gcm_iv_vld_i    <= 1;
-                gcm_data_i      <= 128'h5adb9609dbaeb58cbd6e727500000000;
+                gcm_data_i      <= 128'hb5e3_5be4_7112_4098_7ddf_8f39_0000_0000;
 		gcm_end_i       <= 0;
 
         #000020 gcm_iv_vld_i    <= 0;
                 gcm_data_vld_i  <= 0;
                 gcm_key_vld_i	<= 0;
                 gcm_aad_vld_i   <= 1;
-                gcm_data_i      <= 128'h8831_9d6e_1d3f_fa5f_9871_9916_6c8a_9b56;//c2aeba5a;
+                gcm_data_i      <= 128'h54b4_a7d1_85c8_9fd3_d3ef_6f36_7324_b4b9;//c2aeba5a;
                 gcm_end_i       <= 0;
 
-        #000020 gcm_data_i      <= 128'hc2ae_ba5a_0000_0000_0000_0000_0000_0000;//c2aeba5a;
+        #000020 gcm_data_i      <= 128'h2dbf_e3c2_6bc7_c72f_0697_5908_3ebf_8acf;//c2aeba5a;
 
         #000020 gcm_aad_vld_i   <= 0;
                 gcm_data_vld_i  <= 1;
-                gcm_data_i      <= 128'h7c0e_88c8_8899_a779_2284_6507_4797_cd4c;//2e14_98d2_59b5_4390_b85e_3eef_1c02_df60;e743_f1b8_4038_2c4b_ccaf_3baf_b4ca_8429;bea063;
-        #000020 gcm_data_i      <= 128'h2e14_98d2_59b5_4390_b85e_3eef_1c02_df60;
-        #000020 gcm_data_i      <= 128'he743_f1b8_4038_2c4b_ccaf_3baf_b4ca_8429;
-        #000020 gcm_data_i      <= 128'hbea0_6300_0000_0000_0000_0000_0000_0000;
+                gcm_data_i      <= 128'h10b3_ddee_7f11_4a78_d7ed_131a_1d83_f9e5;//2e14_98d2_59b5_4390_b85e_3eef_1c02_df60;e743_f1b8_4038_2c4b_ccaf_3baf_b4ca_8429;bea063;
+        #000020 gcm_data_i      <= 128'hca73_7604_1b64_8dcc_1648_1bc9_d493_fd66;
+        #000020 gcm_data_i      <= 128'h323e_0295_4c5f_f433_5ed4_e2a5_70a6_160b;
+        #000020 gcm_data_i      <= 128'h0aef_5408_2524_4d53_3c21_6738_f940_b024;
                 gcm_end_i       <= 1;
         #000020 gcm_end_i       <= 0;
                 gcm_data_vld_i  <= 0;
